@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Segmentation Results</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00dbde;
+      --secondary: #fc00ff;
+      --accent: #00ff87;
+      --dark: #0f0f1a;
+      --light: #f0f0ff;
+      --text-dark: #333;
+      --soft-bg: #f8f9fa;
+      --softer-bg: #f1f3f5;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--dark);
+      color: var(--light);
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      position: relative;
+      z-index: 1;
+      padding: 2rem;
+    }
+    
+    h1, h2, h3, h4 {
+      color: var(--light);
+    }
+    
+    h1 {
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -moz-text-fill-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h2 {
+      margin-top: 3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.5rem;
+      text-align: center;
+    }
+    
+    /* Futuristic background animation */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    
+    .connection-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    .connection-line {
+      position: absolute;
+      background: linear-gradient(90deg, rgba(0,219,222,0.2), rgba(252,0,255,0.2));
+      transform-origin: top left;
+    }
+    
+    /* Content styling */
+    .content-box {
+      background: var(--softer-bg);
+      border-radius: 15px;
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      color: var(--text-dark);
+    }
+    
+    .cluster-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    @media (max-width: 992px) {
+      .cluster-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background: var(--soft-bg);
+      border-left: 5px solid #aaa;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      transition: transform 0.3s;
+      color: var(--text-dark);
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .cluster-1 { border-color: #0d0887; }
+    .cluster-2 { border-color: #9c179e; }
+    .cluster-3 { border-color: #ed7953; }
+    .cluster-4 { border-color: #f0f921; }
+    
+    .card h3 {
+      margin-top: 0;
+      color: var(--text-dark);
+    }
+    
+    .card p {
+      margin: 0.4rem 0;
+      font-size: 0.95rem;
+    }
+    
+    table {
+      width: 100%;
+      background: var(--soft-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      color: var(--text-dark);
+    }
+    
+    table th, table td {
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid #e9ecef;
+    }
+    
+    table th {
+      background: var(--softer-bg);
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    
+    .back-button-container {
+      margin-top: 3rem;
+      text-align: center;
+      padding: 1rem 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: none;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
+    }
+    
+    .legend {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .legend li {
+      padding: 0.5rem 1rem;
+      background: var(--soft-bg);
+      border-radius: 50px;
+      color: var(--text-dark);
+    }
+    
+    .table-container {
+      background: var(--softer-bg);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    
+    .image-container {
+      position: relative;
+      text-align: center;
+    }
+    
+    .image-title {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      color: var(--text-dark);
+      font-weight: 600;
+      font-size: 1.5rem;
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+  <!-- Futuristic background elements -->
+  <div class="particles" id="particles"></div>
+  <div class="connection-lines" id="connectionLines"></div>
+
+  <div class="container">
+    <h1>CUSTOMER SEGMENTATION RESULTS</h1>
+
+    <div class="content-box">
+      <div class="image-container">
+        <h2 class="image-title">Elbow Point Graph</h2>
+        <p class="text-center"><strong>Optimal number of clusters: 4</strong></p>
+        <img src="{{ elbow_plot }}" class="img-fluid mx-auto d-block" style="max-width: 600px;"/>
+      </div>
+    </div>
+
+    <div class="content-box">
+      <h2 style="color: var(--text-dark);" class="text-center">SCALED RFM TABLE</h2>
+      <div class="table-container">
+        <table id="rfm-table" class="table">
+          <thead>
+            <tr>
+              <th>CustomerID</th>
+              <th>Recency</th>
+              <th>Frequency</th>
+              <th>MonetaryValue</th>
+              <th>Cluster</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS will insert table rows here -->
+          </tbody>
+        </table>
+        <div class="text-center mb-4 mt-3">
+          <button onclick="prevPage()" class="btn btn-outline-primary btn-sm">⟨ Prev</button>
+          <span id="page-indicator" class="mx-3">Page 1</span>
+          <button onclick="nextPage()" class="btn btn-outline-primary btn-sm">Next ⟩</button>
+          <button onclick="downloadExcel()" class="btn btn-success btn-sm ml-3">
+            <i class="fas fa-file-excel mr-2"></i>Download as Excel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-box">
+      <div class="image-container">
+        <h2 class="image-title">3D Cluster Plot</h2>
+        <div>{{ cluster_3d_html|safe }}</div>
+      </div>
+      
+      <h4 class="text-center mt-4" style="color: var(--text-dark);">Cluster Legend</h4>
+      <ul class="legend">
+        <li><strong><span style="color: #0d0887">Cluster 0:</span></strong> Champion Customers</li>
+        <li><strong><span style="color: #9c179e">Cluster 1:</span></strong> Potential Loyalists</li>
+        <li><strong><span style="color: #ed7953">Cluster 2:</span></strong> At-Risk Customers</li>
+        <li><strong><span style="color: #f0f921">Cluster 3:</span></strong> Lost Customers</li>
+      </ul>
+    </div>
+
+    <div class="content-box">
+      <h2 style="color: var(--text-dark);">Cluster Analysis</h2>
+      <div class="cluster-cards">
+        <!-- Cluster cards remain the same as before -->
+        <div class="card cluster-1">
+          <h3>Champion Customers</h3>
+          <p><strong>Cluster:</strong> 0</p>
+          <p><strong>Avg Recency:</strong> {{ '%.2f' % cluster_summary[0].AvgRecency }}</p>
+          <p><strong>Avg Frequency:</strong> {{ '%.2f' % cluster_summary[0].AvgFrequency }}</p>
+          <p><strong>Avg Monetary:</strong> {{ '%.2f' % cluster_summary[0].AvgMonetaryValue }}</p>
+          <p><strong>Customers:</strong> {{ cluster_summary[0].Customers }}</p>
+          <div class="cluster-description">
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+              <li>Recent activity</li>
+              <li>Frequent buyers</li>
+              <li>Spend a lot</li>
+            </ul>
+            <p><strong>Strategy:</strong> Keep them happy with thank-you messages and loyalty rewards—they're valuable and engaged.</p>
+          </div>
+        </div>
+
+        <div class="card cluster-2">
+          <h3>Potential Loyalists</h3>
+          <p><strong>Cluster:</strong> 1</p>
+          <p><strong>Avg Recency:</strong> {{ '%.2f' % cluster_summary[1].AvgRecency }}</p>
+          <p><strong>Avg Frequency:</strong> {{ '%.2f' % cluster_summary[1].AvgFrequency }}</p>
+          <p><strong>Avg Monetary:</strong> {{ '%.2f' % cluster_summary[1].AvgMonetaryValue }}</p>
+          <p><strong>Customers:</strong> {{ cluster_summary[1].Customers }}</p>
+          <div class="cluster-description">
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+              <li>Somewhat recent</li>
+              <li>Occasional buyers</li>
+              <li>Moderate spenders</li>
+            </ul>
+            <p><strong>Strategy:</strong> Motivate them with offers to buy again—they're close to becoming loyal.</p>
+          </div>
+        </div>
+
+        <div class="card cluster-3">
+          <h3>At-Risk Customers</h3>
+          <p><strong>Cluster:</strong> 2</p>
+          <p><strong>Avg Recency:</strong> {{ '%.2f' % cluster_summary[2].AvgRecency }}</p>
+          <p><strong>Avg Frequency:</strong> {{ '%.2f' % cluster_summary[2].AvgFrequency }}</p>
+          <p><strong>Avg Monetary:</strong> {{ '%.2f' % cluster_summary[2].AvgMonetaryValue }}</p>
+          <p><strong>Customers:</strong> {{ cluster_summary[2].Customers }}</p>
+          <div class="cluster-description">
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+              <li>Haven't shopped in a while</li>
+              <li>Infrequent</li>
+              <li>Used to spend well</li>
+            </ul>
+            <p><strong>Strategy:</strong> Win them back with personalized messages, discounts, or reminders.</p>
+          </div>
+        </div>
+
+        <div class="card cluster-4">
+          <h3>Lost Customers</h3>
+          <p><strong>Cluster:</strong> 3</p>
+          <p><strong>Avg Recency:</strong> {{ '%.2f' % cluster_summary[3].AvgRecency }}</p>
+          <p><strong>Avg Frequency:</strong> {{ '%.2f' % cluster_summary[3].AvgFrequency }}</p>
+          <p><strong>Avg Monetary:</strong> {{ '%.2f' % cluster_summary[3].AvgMonetaryValue }}</p>
+          <p><strong>Customers:</strong> {{ cluster_summary[3].Customers }}</p>
+          <div class="cluster-description">
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+              <li>Less recent</li>
+              <li>Rarely buy</li>
+              <li>High spenders</li>
+            </ul>
+            <p><strong>Strategy:</strong> Send personalized reactivation offers, loyalty bonuses, or "We Miss You" campaigns.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="back-button-container">
+      <a href="/" class="btn btn-primary">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Upload
+      </a>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Create futuristic particles
+    function createParticles() {
+      const particlesContainer = $('#particles');
+      const particleCount = 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = $('<div class="particle"></div>');
+        const size = Math.random() * 5 + 1;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const delay = Math.random() * 10;
+        const duration = Math.random() * 20 + 10;
+        
+        particle.css({
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `${posX}%`,
+          top: `${posY}%`,
+          animation: `float ${duration}s linear ${delay}s infinite`
+        });
+        
+        particlesContainer.append(particle);
+      }
+    }
+    
+    // Create connection lines
+    function createConnectionLines() {
+      const linesContainer = $('#connectionLines');
+      const lineCount = 15;
+      
+      for (let i = 0; i < lineCount; i++) {
+        const line = $('<div class="connection-line"></div>');
+        const width = Math.random() * 200 + 50;
+        const angle = Math.random() * 360;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const opacity = Math.random() * 0.2 + 0.1;
+        
+        line.css({
+          width: `${width}px`,
+          height: '1px',
+          left: `${posX}%`,
+          top: `${posY}%`,
+          transform: `rotate(${angle}deg)`,
+          opacity: opacity
+        });
+        
+        linesContainer.append(line);
+      }
+    }
+    
+    // Initialize background animations
+    createParticles();
+    createConnectionLines();
+
+    // Table pagination
+    const table = document.createElement('div');
+    table.innerHTML = `{{ table|safe }}`;
+    const allRows = Array.from(table.querySelectorAll("tbody tr"));
+    const rowsPerPage = 20;
+    let currentPage = 0;
+
+    function renderTable() {
+      const tbody = document.querySelector('#rfm-table tbody');
+      tbody.innerHTML = '';
+      const start = currentPage * rowsPerPage;
+      const end = start + rowsPerPage;
+      allRows.slice(start, end).forEach(row => {
+        tbody.appendChild(row.cloneNode(true));
+      });
+      document.getElementById('page-indicator').textContent = `Page ${currentPage + 1}`;
+    }
+
+    function nextPage() {
+      if ((currentPage + 1) * rowsPerPage < allRows.length) {
+        currentPage++;
+        renderTable();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderTable();
+      }
+    }
+
+    function downloadExcel() {
+      const excelData = "{{ excel_data }}";
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${excelData}`;
+      link.download = 'customer_segments.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('DOMContentLoaded', renderTable);
+  </script>
+</body>
+</html>
